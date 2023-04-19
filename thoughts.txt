@@ -1,0 +1,7 @@
+I was thinking that for other's defensive heuristic, they might
+try to implement a way to defend where it alerts when an enemy
+comes in right away and where in the board it comes in right away,
+so what if we do a double offensive thing where we have one pacman
+go in and then another, then pull the second back to defense so it
+sort of pulls the defender away from our other "secret spy"
+attacker?
