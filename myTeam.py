@@ -13,9 +13,11 @@
 
 
 from captureAgents import CaptureAgent
-import random, time, util
+import random, time, util, sys
 from game import Directions
 import game
+import distanceCalculator
+from util import nearestPoint
 
 #################
 # Team creation #
@@ -90,7 +92,7 @@ class DummyAgent(CaptureAgent):
 
     return random.choice(actions)
 
-def generalAgents(agent):
+class generalAgents(CaptureAgent):
   def registerInitialState(self, gameState):
     self.start = gameState.getAgentPosition(self.index)
     CaptureAgent.registerInitialState(self, gameState)
