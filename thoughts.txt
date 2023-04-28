@@ -10,3 +10,5 @@ I think for the starting point, just as a base thing, we should
 implement a thing where if the score is higher theirs, we go defensive
 and if not, we'll do once defensive one offensive and work our way
 closer to their score one pellet at a time.
+
+Instead of an offense and defense, i say we go flex and defense.
