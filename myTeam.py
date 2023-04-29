@@ -52,6 +52,7 @@ class generalAgents(CaptureAgent):
     self.start = gameState.getAgentPosition(self.index)
     CaptureAgent.registerInitialState(self, gameState)
   
+  #rewrite this
   def chooseAction(self, gameState):
     """
     Picks among the actions with the highest Q(s,a).
@@ -71,6 +72,8 @@ class generalAgents(CaptureAgent):
     else:
       # include default behavior
       print("we are winning")
+      # We will want to go to their side, gather the nearest 2-3 pellets, and then come back, given that the power pellet is not closer than the enemy distance + 2.
+      ƒ
 
     if foodLeft <= 2:
       bestDist = 9999
@@ -96,7 +99,7 @@ class generalAgents(CaptureAgent):
       return successor.generateSuccessor(self.index, action)
     else:
       return successor
-    
+  
   def midIndex(self, gameState):
     if self.red:
       return gameState.data.layout.width / 2 - 1
@@ -116,23 +119,23 @@ class generalAgents(CaptureAgent):
         numEnemies += 1
     return numEnemies
   
-
-
   def isWinning(self, gameState):
     """
     Evaluates if we are winning or not.
     """
     return self.getScore(gameState) > 0
   
-
+  #rewrite this
   def evaluate(self, gameState, action):
     """
     Computes a linear combination of features and feature weights
     """
     features = self.getFeatures(gameState, action)
     weights = self.getWeights(gameState, action)
+    print(features * weights)
     return features * weights
 
+  #overwrite this in the flex and defense classes
   def getFeatures(self, gameState, action):
     """
     Returns a counter of features for the state
@@ -142,6 +145,7 @@ class generalAgents(CaptureAgent):
     features['successorScore'] = self.getScore(successor)
     return features
 
+  #overwrite this in the flex and defense classes
   def getWeights(self, gameState, action):
     """
     Normally, weights do not depend on the gamestate.  They can be either
@@ -153,7 +157,7 @@ class Flex(generalAgents):
   def getFeatures(self, gameState, action):
     features = util.Counter()
     successor = self.getSuccessor(gameState, action)
-    foodList = self.getFood(successor).asList()    
+    foodList = self.getFood(successor).asList()
     features['successorScore'] = -len(foodList)#self.getScore(successor)
 
     # Compute distance to the nearest food
