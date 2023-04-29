@@ -54,9 +54,7 @@ class generalAgents(CaptureAgent):
   def registerInitialState(self, gameState):
     self.start = gameState.getAgentPosition(self.index)
     CaptureAgent.registerInitialState(self, gameState)
-
   
-
   def chooseAction(self, gameState):
     """
     Picks among the actions with the highest Q(s,a).
