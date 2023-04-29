@@ -19,7 +19,6 @@ import game
 import distanceCalculator
 from util import nearestPoint
 from capture import halfGrid
-
 #################
 # Team creation #
 #################
@@ -44,8 +43,6 @@ def createTeam(firstIndex, secondIndex, isRed,
   # The following line is an example only; feel free to change it.
   return [eval(first)(firstIndex), eval(second)(secondIndex)]
 
-
-
 ##########
 # Agents #
 ##########
@@ -55,7 +52,8 @@ class generalAgents(CaptureAgent):
     self.start = gameState.getAgentPosition(self.index)
     CaptureAgent.registerInitialState(self, gameState)
 
-  
+  def findBorders(self, gameState):
+    print("finding borders")
 
   def chooseAction(self, gameState):
     """
@@ -107,6 +105,28 @@ class generalAgents(CaptureAgent):
       return gameState.data.layout.width / 2 - 1
     else:
       return gameState.data.layout.width / 2
+  # determines how many enemies have crossed over
+  # therefore, number of enemy ghosts = 2 - numAttackers
+
+  def numAttackers(self, gameState):
+    """
+    Determines how many enemies have crossed over to steal pellets.
+    The number of ghosts is equal to 2 - numAttackers(self, gameState).
+    """
+    numEnemies = 0
+    for i in self.getOpponents(gameState):
+      if gameState.getAgentState(i).isPacman:
+        numEnemies += 1
+    return numEnemies
+  
+
+
+  def isWinning(self, gameState):
+    """
+    Evaluates if we are winning or not.
+    """
+    return self.getScore(gameState) > 0
+  
 
   def evaluate(self, gameState, action):
     """
