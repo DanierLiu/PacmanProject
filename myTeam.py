@@ -18,6 +18,7 @@ from game import Directions
 import game
 import distanceCalculator
 from util import nearestPoint
+from capture import halfGrid
 
 #################
 # Team creation #
@@ -43,6 +44,8 @@ def createTeam(firstIndex, secondIndex, isRed,
   # The following line is an example only; feel free to change it.
   return [eval(first)(firstIndex), eval(second)(secondIndex)]
 
+
+
 ##########
 # Agents #
 ##########
@@ -52,8 +55,7 @@ class generalAgents(CaptureAgent):
     self.start = gameState.getAgentPosition(self.index)
     CaptureAgent.registerInitialState(self, gameState)
 
-  def findBorders(self, gameState):
-    print("finding borders")
+  
 
   def chooseAction(self, gameState):
     """
@@ -99,6 +101,12 @@ class generalAgents(CaptureAgent):
       return successor.generateSuccessor(self.index, action)
     else:
       return successor
+    
+  def midIndex(self, gameState):
+    if self.red:
+      return gameState.data.layout.width / 2 - 1
+    else:
+      return gameState.data.layout.width / 2
 
   def evaluate(self, gameState, action):
     """
