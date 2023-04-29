@@ -105,9 +105,9 @@ class generalAgents(CaptureAgent):
       return gameState.data.layout.width / 2 - 1
     else:
       return gameState.data.layout.width / 2
+    
   # determines how many enemies have crossed over
   # therefore, number of enemy ghosts = 2 - numAttackers
-
   def numAttackers(self, gameState):
     """
     Determines how many enemies have crossed over to steal pellets.
