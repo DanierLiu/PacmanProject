@@ -183,18 +183,15 @@ class Flex(generalAgents):
     
     # See if we got a food pellet
     if currentFood > 0:
-      print("LSDKFJASDLFKJA;LSDFHXCLVJKBNAS;ODFJACVLKBN;EWOAH\n\n")
       features['food'] = self.getMazeDistance(self.start, successor.getAgentState(self.index).getPosition())
       if not successor.getAgentState(self.index).isPacman:
         features['returned'] = 99999
         currentFood = 0
-    else:
-      print("currentFood = 0")
 
     return features
 
   def getWeights(self, gameState, action):
-    return {'successorScore': 50, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -1, 'returned': 999}
+    return {'successorScore': 50, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -20, 'returned': 999}
   
 class Defense(generalAgents):
   def getFeatures(self, gameState, action):

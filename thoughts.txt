@@ -12,3 +12,7 @@ and if not, we'll do once defensive one offensive and work our way
 closer to their score one pellet at a time.
 
 Instead of an offense and defense, i say we go flex and defense.
+
+Add a feature for distance to the midpoint, or cutoff/choke point
+that is the closest to our character. That way, we cut off intruders
+and have an escape route when we are the attackers.
