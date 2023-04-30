@@ -54,6 +54,8 @@ class generalAgents(CaptureAgent):
   def registerInitialState(self, gameState):
     self.start = gameState.getAgentPosition(self.index)
     CaptureAgent.registerInitialState(self, gameState)
+    global foodlistLength
+    foodlistLength = len(self.getFood(gameState).asList())
   
   #rewrite this
   def chooseAction(self, gameState):
@@ -155,14 +157,15 @@ class Flex(generalAgents):
   def getFeatures(self, gameState, action):
     global currentFood
     global foodlistLength
-    foodlistLength = len(self.getFood(gameState).asList())
+    comparelength = len(self.getFood(gameState).asList())
     features = util.Counter()
     successor = self.getSuccessor(gameState, action)
     foodList = self.getFood(successor).asList()
     myPos = successor.getAgentState(self.index).getPosition()
     features['successorScore'] = -len(foodList)#self.getScore(successor)
-    if len(foodList) < foodlistLength:
+    if comparelength < foodlistLength:
       currentFood += 1
+      foodlistLength = comparelength
 
     # Compute distance to the nearest food
     minDistance = 0
@@ -183,13 +186,15 @@ class Flex(generalAgents):
       print("LSDKFJASDLFKJA;LSDFHXCLVJKBNAS;ODFJACVLKBN;EWOAH\n\n")
       features['food'] = self.getMazeDistance(self.start, successor.getAgentState(self.index).getPosition())
       if not successor.getAgentState(self.index).isPacman:
-        #features['returned'] = 99999
+        features['returned'] = 99999
         currentFood = 0
+    else:
+      print("currentFood = 0")
 
     return features
 
   def getWeights(self, gameState, action):
-    return {'successorScore': 20, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -1, 'returned': 999}
+    return {'successorScore': 50, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -1, 'returned': 999}
   
 class Defense(generalAgents):
   def getFeatures(self, gameState, action):
