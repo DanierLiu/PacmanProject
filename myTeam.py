@@ -19,9 +19,12 @@ import game
 import distanceCalculator
 from util import nearestPoint
 from capture import halfGrid
+import time
 #################
 # Team creation #
 #################
+currentFood = 0
+foodlistLength = 0
 
 def createTeam(firstIndex, secondIndex, isRed,
                first = 'Flex', second = 'Defense'):
@@ -57,24 +60,22 @@ class generalAgents(CaptureAgent):
     """
     Picks among the actions with the highest Q(s,a).
     """
-    if self.getScore(gameState) <= 0:
-      actions = gameState.getLegalActions(self.index)
+    foodlistLength = len(self.getFood(gameState).asList())
+  
+    actions = gameState.getLegalActions(self.index)
 
-      # You can profile your evaluation time by uncommenting these lines
-      # start = time.time()
-      values = [self.evaluate(gameState, a) for a in actions]
-      # print 'eval time for agent %d: %.4f' % (self.index, time.time() - start)
+    # You can profile your evaluation time by uncommenting these lines
+    # start = time.time()
+    values = [self.evaluate(gameState, a) for a in actions]
+    # print 'eval time for agent %d: %.4f' % (self.index, time.time() - start)
 
-      maxValue = max(values)
-      bestActions = [a for a, v in zip(actions, values) if v == maxValue]
+    maxValue = max(values)
+    bestActions = [a for a, v in zip(actions, values) if v == maxValue]
 
-      foodLeft = len(self.getFood(gameState).asList())
-    else:
-      # include default behavior
-      print("we are winning")
-      # We will want to go to their side, gather the nearest 2-3 pellets, and then come back, given that the power pellet is not closer than the enemy distance + 2.
-      ƒ
+    foodLeft = len(self.getFood(gameState).asList())
 
+    print(bestActions)
+    # time.sleep(0.1)
     if foodLeft <= 2:
       bestDist = 9999
       for action in actions:
@@ -132,7 +133,6 @@ class generalAgents(CaptureAgent):
     """
     features = self.getFeatures(gameState, action)
     weights = self.getWeights(gameState, action)
-    print(features * weights)
     return features * weights
 
   #overwrite this in the flex and defense classes
@@ -155,21 +155,41 @@ class generalAgents(CaptureAgent):
 
 class Flex(generalAgents):
   def getFeatures(self, gameState, action):
+    global currentFood
+    global foodlistLength
     features = util.Counter()
     successor = self.getSuccessor(gameState, action)
     foodList = self.getFood(successor).asList()
+    myPos = successor.getAgentState(self.index).getPosition()
     features['successorScore'] = -len(foodList)#self.getScore(successor)
+    if len(foodList) < foodlistLength:
+      currentFood += 1
 
     # Compute distance to the nearest food
-
+    minDistance = 0
     if len(foodList) > 0: # This should always be True,  but better safe than sorry
-      myPos = successor.getAgentState(self.index).getPosition()
       minDistance = min([self.getMazeDistance(myPos, food) for food in foodList])
       features['distanceToFood'] = minDistance
+    
+    # Compute the distance between us and the closest enemy
+    minDistGhost = 999999999
+    if successor.getAgentState(self.index).isPacman:
+      for i in self.getOpponents(gameState):
+        if not gameState.getAgentState(i).isPacman:
+          minDistGhost = min(minDistGhost, self.getMazeDistance(myPos, successor.getAgentState(i).getPosition())) + 2
+      features['criticalDistance'] = minDistGhost
+    
+    # See if we got a food pellet
+    if currentFood > 0:
+      features['food'] = self.getMazeDistance(self.start, successor.getAgentState(self.index).getPosition())
+      if not successor.getAgentState(self.index).isPacman:
+        features['returned'] = 99999
+        currentFood = 0
+
     return features
 
   def getWeights(self, gameState, action):
-    return {'successorScore': 100, 'distanceToFood': -1}
+    return {'successorScore': 20, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -1, 'returned': 999} 
   
 class Defense(generalAgents):
   def getFeatures(self, gameState, action):
