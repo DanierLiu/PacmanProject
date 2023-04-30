@@ -60,7 +60,6 @@ class generalAgents(CaptureAgent):
     """
     Picks among the actions with the highest Q(s,a).
     """
-    foodlistLength = len(self.getFood(gameState).asList())
   
     actions = gameState.getLegalActions(self.index)
 
@@ -74,7 +73,6 @@ class generalAgents(CaptureAgent):
 
     foodLeft = len(self.getFood(gameState).asList())
 
-    print(bestActions)
     # time.sleep(0.1)
     if foodLeft <= 2:
       bestDist = 9999
@@ -157,6 +155,7 @@ class Flex(generalAgents):
   def getFeatures(self, gameState, action):
     global currentFood
     global foodlistLength
+    foodlistLength = len(self.getFood(gameState).asList())
     features = util.Counter()
     successor = self.getSuccessor(gameState, action)
     foodList = self.getFood(successor).asList()
@@ -181,15 +180,16 @@ class Flex(generalAgents):
     
     # See if we got a food pellet
     if currentFood > 0:
+      print("LSDKFJASDLFKJA;LSDFHXCLVJKBNAS;ODFJACVLKBN;EWOAH\n\n")
       features['food'] = self.getMazeDistance(self.start, successor.getAgentState(self.index).getPosition())
       if not successor.getAgentState(self.index).isPacman:
-        features['returned'] = 99999
+        #features['returned'] = 99999
         currentFood = 0
 
     return features
 
   def getWeights(self, gameState, action):
-    return {'successorScore': 20, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -1, 'returned': 999} 
+    return {'successorScore': 20, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -1, 'returned': 999}
   
 class Defense(generalAgents):
   def getFeatures(self, gameState, action):
