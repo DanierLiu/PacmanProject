@@ -26,6 +26,8 @@ import time
 currentFood = 0
 foodlistLength = 0
 initFoodListLength = 0
+ourCapsules = []
+enemyCapsules = []
 
 def createTeam(firstIndex, secondIndex, isRed,
                first = 'Flex', second = 'Defense'):
@@ -57,7 +59,17 @@ class generalAgents(CaptureAgent):
     CaptureAgent.registerInitialState(self, gameState)
     global foodlistLength
     foodlistLength = len(self.getFood(gameState).asList())
-  
+
+  def findPowerPellets(self, gameState):
+    global ourCapsules
+    global enemyCapsules
+    if self.red:
+      enemyCapsules = gameState.getBlueCapsules()
+      ourCapsules = gameState.getRedCapsules()
+    else:
+      ourCapsules = gameState.getBlueCapsules()
+      enemyCapsules = gameState.getRedCapsules()
+    
   #rewrite this
   def chooseAction(self, gameState):
     """
@@ -231,6 +243,8 @@ class Flex(generalAgents):
   
 class Defense(generalAgents):
   def getFeatures(self, gameState, action):
+    enemyCapsules = []
+    ourCapsules = []
     features = util.Counter()
     successor = self.getSuccessor(gameState, action)
 
@@ -249,6 +263,17 @@ class Defense(generalAgents):
       dists = [self.getMazeDistance(myPos, a.getPosition()) for a in invaders]
       features['invaderDistance'] = min(dists)
 
+    if self.red:
+      enemyCapsules = gameState.getBlueCapsules()
+      ourCapsules = gameState.getRedCapsules()
+    else:
+      ourCapsules = gameState.getBlueCapsules()
+      enemyCapsules = gameState.getRedCapsules()
+    
+    # If the distance bewteen the enemy to the power pellets is greater than the distance between us and the power pellets, do something.
+    # Also take into account the distance between us and the enemy, as well as us to the power pellets
+    # We also need to take into account the distance between us and the cutoff points/closest exits.
+    #Instead of reversing here, lets do something else. Have it hover around the area between power pellet and enemy
     if action == Directions.STOP: features['stop'] = 1
     rev = Directions.REVERSE[gameState.getAgentState(self.index).configuration.direction]
     if action == rev: features['reverse'] = 1
