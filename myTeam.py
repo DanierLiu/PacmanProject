@@ -270,10 +270,31 @@ class Defense(generalAgents):
       ourCapsules = gameState.getBlueCapsules()
       enemyCapsules = gameState.getRedCapsules()
     
+    # Calculate distance between the enemy and the closest capsule to them
+    enemyDistToCaps = 99999999999
+    closestCapsuleToEnemy = (0,0)
+    if len(invaders) > 0:
+      for enemy in invaders:
+        for c in ourCapsules:
+          d = self.getMazeDistance(enemy.getPosition(), c)
+          if d < enemyDistToCaps:
+            enemyDistToCaps = d
+            closestCapsuleToEnemy = c
+    
+    # Calculate distance between us and said capsule.
+    distToCaps = self.getMazeDistance(myPos, closestCapsuleToEnemy)
+
+    if enemyDistToCaps > distToCaps:
+      features['intruderCapsule'] = -1
+    else:
+      features['intruderCapsule'] = 1
+    # If features['intruderCapsule'] = 1, we want to move to try and intercept the attacker.
+    # If that is too far for us and they will certainly get the power pellet, move to the cutoff point at mid.
+    
     # If the distance bewteen the enemy to the power pellets is greater than the distance between us and the power pellets, do something.
     # Also take into account the distance between us and the enemy, as well as us to the power pellets
     # We also need to take into account the distance between us and the cutoff points/closest exits.
-    #Instead of reversing here, lets do something else. Have it hover around the area between power pellet and enemy
+    # Instead of reversing here, lets do something else. Have it hover around the area between power pellet and enemy
     if action == Directions.STOP: features['stop'] = 1
     rev = Directions.REVERSE[gameState.getAgentState(self.index).configuration.direction]
     if action == rev: features['reverse'] = 1
@@ -281,7 +302,7 @@ class Defense(generalAgents):
     return features
 
   def getWeights(self, gameState, action):
-    return {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2}
+    return {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2, 'IntruderCapsule': 1}
 
 
 #test
