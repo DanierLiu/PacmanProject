@@ -26,8 +26,7 @@ import time
 currentFood = 0
 foodlistLength = 0
 initFoodListLength = 0
-ourCapsules = []
-enemyCapsules = []
+crossoverPositions = []
 
 def createTeam(firstIndex, secondIndex, isRed,
                first = 'Flex', second = 'Defense'):
@@ -59,17 +58,17 @@ class generalAgents(CaptureAgent):
     CaptureAgent.registerInitialState(self, gameState)
     global foodlistLength
     foodlistLength = len(self.getFood(gameState).asList())
-
-  def findPowerPellets(self, gameState):
-    global ourCapsules
-    global enemyCapsules
+    self.findCrossovers(gameState)
+  
+  # Find the access positions
+  def findCrossovers(self, gameState):
+    global crossoverPositions
     if self.red:
-      enemyCapsules = gameState.getBlueCapsules()
-      ourCapsules = gameState.getRedCapsules()
-    else:
-      ourCapsules = gameState.getBlueCapsules()
-      enemyCapsules = gameState.getRedCapsules()
-    
+      for pos in gameState.getRedFood():
+        if pos[0] == gameState.data.layout.width / 2 - 1:
+          if not gameState.hasWall(pos[0] + 1, pos[1]):
+            crossoverPositions.append(pos)
+  
   #rewrite this
   def chooseAction(self, gameState):
     """
@@ -204,6 +203,8 @@ class Flex(generalAgents):
         features['criticalDistance'] = minDistGhost
       
       # See if we got a food pellet
+      # This works for now, but won't work in the future since we're going back to the start rather than entry position.
+      # I'll find entry positions.
       if currentFood > 0:
         features['food'] = self.getMazeDistance(self.start, successor.getAgentState(self.index).getPosition())
         if not successor.getAgentState(self.index).isPacman:
@@ -240,9 +241,11 @@ class Flex(generalAgents):
     if not self.isWinning(gameState):
       return {'successorScore': 50, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -20, 'returned': 999}
     return {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2}
-  
+
+# This first defense will be getting the closest to the entries, while the second will get power pellet
 class Defense(generalAgents):
   def getFeatures(self, gameState, action):
+    global crossoverPositions
     enemyCapsules = []
     ourCapsules = []
     features = util.Counter()
@@ -270,6 +273,23 @@ class Defense(generalAgents):
       ourCapsules = gameState.getBlueCapsules()
       enemyCapsules = gameState.getRedCapsules()
     
+    # Compute the distance the closest enemy to the middle is:
+    enemyDistToMid = 999999999
+    closestEnemy = 0
+    posUnderAttack = (0,0)
+    for e in enemies:
+      for entry in crossoverPositions:
+        tempDist = self.getMazeDistance(e.getPosition(), entry)
+        if tempDist < enemyDistToMid:
+          enemyDistToMid = tempDist
+          closestEnemy = e
+          posUnderAttack = entry
+    
+    if self.getMazeDistance(myPos, posUnderAttack) < enemyDistToMid:
+      features['goMid'] = 1
+      
+
+
     # Calculate distance between the enemy and the closest capsule to them
     enemyDistToCaps = 99999999999
     closestCapsuleToEnemy = (0,0)
@@ -290,6 +310,7 @@ class Defense(generalAgents):
       features['intruderCapsule'] = 1
     # If features['intruderCapsule'] = 1, we want to move to try and intercept the attacker.
     # If that is too far for us and they will certainly get the power pellet, move to the cutoff point at mid.
+    # If we are trying to get to the intruder, we want to intercept at the path
     
     # If the distance bewteen the enemy to the power pellets is greater than the distance between us and the power pellets, do something.
     # Also take into account the distance between us and the enemy, as well as us to the power pellets
