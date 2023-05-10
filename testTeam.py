@@ -54,10 +54,6 @@ def createTeam(firstIndex, secondIndex, isRed,
 # Agents #
 ##########
 
-#########################
-##### General Agent #####
-#########################
-
 class generalAgents(CaptureAgent):
   def registerInitialState(self, gameState):
     self.start = gameState.getAgentPosition(self.index)
@@ -183,17 +179,6 @@ class generalAgents(CaptureAgent):
     """
     return {'successorScore': 1.0}
 
-
-
-
-
-
-
-
-######################
-##### Flex Agent #####
-######################
-
 class Flex(generalAgents):
   def getFeatures(self, gameState, action):
     if not self.isWinning(gameState):
@@ -222,7 +207,6 @@ class Flex(generalAgents):
         features['distanceToFood'] = minDistance
       
       # Compute the distance between us and the closest enemy
-      # This actually doesn't matter?
       minDistGhost = 999999999
       if successor.getAgentState(self.index).isPacman:
         for i in self.getOpponents(gameState):
@@ -230,23 +214,6 @@ class Flex(generalAgents):
             minDistGhost = min(minDistGhost, self.getMazeDistance(myPos, successor.getAgentState(i).getPosition())) + 1
         features['criticalDistance'] = minDistGhost
       
-      # Compute the distance between us and the closest enemy power pellet
-      distToCaps = 0
-      if successor.getAgentState(self.index).isPacman:
-        distToCaps = min([self.getMazeDistance(myPos, cap) for cap in enemyCapsules])
-      features['capsule'] = distToCaps
-          
-      # If the distance between us and the capsule is less than the distance between us and the enemy, go for the capsule:
-      # While the global variable is capsule is active, prioritize food and run back to base when remaining moves is less
-      # Than the distance between us and the distance back.
-      if distToCaps < minDistGhost:
-        features['goCaps'] = 9999999
-      
-      # If the distance to the closest food is less than the distance between the closest enemy and that food:
-      # If the enemy comes after us, we should go for the power pellet?
-
-      # If the distance to the closest food and back home is less than the distance between the 
-
       # See if we got a food pellet
       # This works for now, but won't work in the future since we're going back to the start rather than entry position.
       # I'll find entry positions.
@@ -255,7 +222,6 @@ class Flex(generalAgents):
         if not successor.getAgentState(self.index).isPacman:
           features['returned'] = 99999
           currentFood = 0
-
       return features
     
     else:
@@ -283,27 +249,12 @@ class Flex(generalAgents):
 
       return features
 
-  # Weights should be negative if the lower the numbers is better.
-  # For example, the lower the distance between us and an enemy, the worse the choice is, so weight is positive.
-  # However, the lower the distance between us and food is, the better the choice is, so weight is negative.
-  # Food and returned are negligible for now.
   def getWeights(self, gameState, action):
     if not self.isWinning(gameState):
-      return {'successorScore': 50, 'criticalDistance': 1, 'distanceToFood': -1, 'capsule': -1, 'goCaps': 1, 'food': -20, 'returned': 999}
+      return {'successorScore': 50, 'criticalDistance': 1, 'distanceToFood': -1, 'food': -20, 'returned': 999}
     return {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2}
 
-
-
-
-
-
-
-
-#########################
-##### Defense Agent #####
-#########################
-
-# This first defense will be getting the closest to the power pellets, while the second will get entries after it attacked
+# This first defense will be getting the closest to the entries, while the second will get power pellet
 class Defense(generalAgents):
   def getFeatures(self, gameState, action):
     global crossoverPositions
