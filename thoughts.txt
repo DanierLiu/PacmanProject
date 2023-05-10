@@ -16,3 +16,10 @@ Instead of an offense and defense, i say we go flex and defense.
 Add a feature for distance to the midpoint, or cutoff/choke point
 that is the closest to our character. That way, we cut off intruders
 and have an escape route when we are the attackers.
+
+
+For offense:
+We want to go for the closest food and escape the ghosts, if we are closer to a power pellet, we should go for it and wait for the
+ghosts to close in on us, meaning if there is a closer food, and the distance to that plus the distance back to the power pellet
+is less than the distance between the ghost and the power pellet and the ghost and us added together, then we should go for that.
+otherwise, wait around at the power pellet and wait for the ghost to get within 2 and then get the power pellet.
