@@ -23,7 +23,6 @@ import time
 #################
 # Team creation #
 #################
-currentFood = 0
 foodlistLength = 0
 initFoodListLength = 0
 crossoverPositions = []
@@ -80,10 +79,6 @@ class generalAgents(CaptureAgent):
   
   # Find the access positions
   def findCrossovers(self, gameState):
-    """
-    Returns a list of location tuples.
-    Each tuple corresponds to where agents can cross over.
-    """
     global crossoverPositions
     if self.red:
       for pos in gameState.getRedFood():
@@ -167,8 +162,6 @@ class generalAgents(CaptureAgent):
     """
     features = self.getFeatures(gameState, action)
     weights = self.getWeights(gameState, action)
-
-    print(features * weights)
     return features * weights
 
   #overwrite this in the flex and defense classes
@@ -206,7 +199,6 @@ class Flex(generalAgents):
     # defense features
     if not self.isWinning(gameState):
       global crossoverPositions
-      global currentFood
       global foodlistLength
       global initFoodListLength
       features = util.Counter()
@@ -242,7 +234,7 @@ class Flex(generalAgents):
       # While the global variable is capsule is active, prioritize food and run back to base when remaining moves is less
       # Than the distance between us and the distance back.
       if distToCaps < minDistGhost:
-        features['goCaps'] = 999
+        features['goCaps'] = 9999999
       
 
       # Heuristic to space out agents.
@@ -251,25 +243,16 @@ class Flex(generalAgents):
       
       # If the distance to the closest food and back home is less than the distance between the 
 
+
+
       # See if we got a food pellet
       # This works for now, but won't work in the future since we're going back to the start rather than entry position.
       # I'll find entry positions.
-      if successor.getAgentState(self.index).numCarrying > 0:
-
-        min_dist_to_mid = 99999999
-        for boundary_pos in crossoverPositions:
-          dist_to_mid = self.getMazeDistance(successor.getAgentState(self.index).getPosition(), boundary_pos)
-          if dist_to_mid < min_dist_to_mid:
-            min_dist_to_mid = dist_to_mid
-
-        features['boundary'] = min_dist_to_mid
+      if self.getAgentState(self.index).numCarrying > 0:
+        features['food'] = self.getMazeDistance(self.start, successor.getAgentState(self.index).getPosition())
         if not successor.getAgentState(self.index).isPacman:
-          features['returned'] = 10
-          currentFood = 0
+          features['returned'] = 99999
 
-
-      print(features)
-      print("^^^ is not winning")
       return features
     
     else:
@@ -295,8 +278,6 @@ class Flex(generalAgents):
       rev = Directions.REVERSE[gameState.getAgentState(self.index).configuration.direction]
       if action == rev: features['reverse'] = 1
 
-      print(features)
-      print("is winning")
       return features
 
   # Weights should be negative if the lower the numbers is better.
@@ -305,7 +286,7 @@ class Flex(generalAgents):
   # Food and returned are negligible for now.
   def getWeights(self, gameState, action):
     if not self.isWinning(gameState):
-      return {'successorScore': 50, 'criticalDistance': 1, 'distanceToFood': -1, 'capsule': -1, 'goCaps': 1, 'boundary': -1, 'returned': 1}
+      return {'successorScore': 50, 'criticalDistance': 1, 'distanceToFood': -1, 'capsule': -1, 'goCaps': 1, 'food': -20, 'returned': 999}
     return {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2}
 
 
